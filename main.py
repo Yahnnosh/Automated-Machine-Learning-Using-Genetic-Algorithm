@@ -51,26 +51,31 @@ low_baseline_model.compile(optimizer='adam', loss='categorical_crossentropy', me
 low_baseline_model.fit(X_train, y_train, epochs=2, batch_size=64, validation_data=(X_test, y_test))'''
 
 # Activation functions
-activation_functions = {
-    'tanh': np.tanh,
-    'relu': (lambda x: np.maximum(0, x)),
-    'sigmoid': (lambda x: 1 / (1 + np.exp(-x))),
-    'linear': (lambda x: x)
-}
-
 def softmax(x):
     z = x - np.max(x)   # overflow protection (softmax(x) = softmax(x - const))
     return np.exp(z) / np.sum(np.exp(z))
 
+activation_functions = {
+    'tanh': np.tanh,
+    'relu': (lambda x: np.maximum(0, x)),
+    'sigmoid': (lambda x: 1 / (1 + np.exp(-x))),
+    'linear': (lambda x: x),
+    'softmax': softmax
+}
+
+
 class Layer():
     def __init__(self, weight, connectivity_matrix, bias, activation_function,
-                 innovation, enabled):
+                 innovation, enabled, output_layer=False):
         self.weight = weight
         self.connectivity_matrix = connectivity_matrix
         self.bias = bias
+        if output_layer:
+            assert(activation_function == 'softmax'), 'output layer must use softmax'
         self.activation_function = activation_function
         self.innovation = innovation
         self.enabled = enabled
+        self.output_layer = output_layer    # final 10 neuron layer (activation fixed to softmax)
 
         # TODO: tune
         self.mutate_rate_weight = 0.1
@@ -119,8 +124,9 @@ class Layer():
         self.bias = int(temp, 2)
 
         # activation function
-        if random.uniform(0, 1) < self.mutate_rate_activation_function:
-            self.activation_function = random.choice(list(activation_functions.keys()))
+        if not self.output_layer:
+            if random.uniform(0, 1) < self.mutate_rate_activation_function:
+                self.activation_function = random.choice(list(activation_functions.keys()))
 
 class Network():
     def __init__(self, layers):
@@ -130,7 +136,7 @@ class Network():
         temp = input
         for layer in self.layers:
             temp = layer.forward(temp)
-        return softmax(temp)
+        return temp
 
     def evaluate(self):  # TODO: slow?
         accuracy = 0
@@ -160,12 +166,13 @@ class Population():
                 weight=1,
                 connectivity_matrix=np.round(np.random.rand(10, 784)),
                 bias=0,
-                activation_function='sigmoid',
+                activation_function='softmax',
                 innovation=0,
-                enabled=True
+                enabled=True,
+                output_layer=True
             )]))
 
-        self.history = [max(self.organism_fitness())]   # max fitness of population over all generations
+        self.history = [(max(self.organism_fitness()), self.average_fitness())]   # fitness of population over all generations
 
     def organism_fitness(self):
         # TODO: speciation
@@ -199,7 +206,7 @@ class Population():
         # TODO: for different type of networks
         # TODO: correct?
         children = []
-        while len(children) < (self.n_survivors - 1):
+        while len(children) < (self.size - 1):
             [father, mother] = random.sample(parents + [self.elite], k=2)  # sample without replacement
             layers = []
 
@@ -247,20 +254,24 @@ class Population():
         print(weights + ']')'''
         self.organisms = children + [self.elite]
         self.generation += 1
-        self.history.append(self.max_fitness())
+        self.history.append((self.max_fitness(), self.average_fitness()))
 
     def plot(self):
         plt.figure()
-        plt.plot(np.arange(self.generation + 1), self.history)
+        plt.plot(np.arange(self.generation + 1), [score[0] for score in self.history],
+                 label='max fitness')
+        plt.plot(np.arange(self.generation + 1), [score[1] for score in self.history],
+                 label='avg fitness', alpha=0.6)
         plt.title('Population fitness')
         plt.xlabel('Generations')
-        plt.ylabel('Max fitness score')
+        plt.ylabel('Fitness score (accuracy)')
+        plt.legend()
         plt.show()
 
 
 def main():
     population = Population()
-    GENERATIONS = 30
+    GENERATIONS = 10
 
     # initial population
     t0 = time.time()
