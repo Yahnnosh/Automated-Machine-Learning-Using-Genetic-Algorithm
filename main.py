@@ -159,18 +159,30 @@ class Population():
         self.n_survivors = n_survivors  # TODO: for now must be odd number (1 elite + odd breeders)
         self.elite = None
 
-        # initialization # TODO: better
+        # initialization # TODO: better (quite random now - e.g. 32 hidden neurons)
         self.organisms = []
         for i in range(size):
-            self.organisms.append(Network([Layer(
-                weight=1,
-                connectivity_matrix=np.round(np.random.rand(10, 784)),
-                bias=0,
-                activation_function='softmax',
-                innovation=0,
-                enabled=True,
-                output_layer=True
-            )]))
+            # one hidden layer (32 neurons), one output layer (10 neurons - 1 resp. to each class)
+            self.organisms.append(Network([
+                Layer(
+                    weight=1,
+                    connectivity_matrix=np.round(np.random.rand(32, 784)),
+                    bias=0,
+                    activation_function='sigmoid',
+                    innovation=0,
+                    enabled=True,
+                    output_layer=False
+                ),
+                Layer(
+                    weight=1,
+                    connectivity_matrix=np.round(np.random.rand(10, 32)),
+                    bias=0,
+                    activation_function='softmax',
+                    innovation=0,
+                    enabled=True,
+                    output_layer=True
+                )
+            ]))
 
         self.history = [(max(self.organism_fitness()), self.average_fitness())]   # fitness of population over all generations
 
@@ -270,8 +282,11 @@ class Population():
 
 
 def main():
-    population = Population()
-    GENERATIONS = 10
+    # initialization
+    GENERATIONS = 30
+    POPULATION_SIZE = 20
+    SURVIVORS = 10
+    population = Population(size=POPULATION_SIZE, n_survivors=SURVIVORS)
 
     # initial population
     t0 = time.time()
