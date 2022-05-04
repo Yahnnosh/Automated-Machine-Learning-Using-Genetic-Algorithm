@@ -16,8 +16,7 @@ X_train = X_train.reshape(-1, 28, 28, 1).astype('float32') / 255
 X_test = X_test.reshape(-1, 28, 28, 1).astype('float32') / 255
 y_train = to_categorical(y_train)   # one-hot encoding
 y_test = to_categorical(y_test)  # one-hot encoding
-t1 = time.time()
-print('Finished loading data (' + str(round(t1 - t0, 2)) + 's)\n')
+print('Finished loading data ({}s)\n'.format(round(time.time() - t0, 2)))
 
 # Baselines
 '''# 1) Torben network
@@ -138,7 +137,7 @@ class Network():
             temp = layer.forward(temp)
         return temp
 
-    def evaluate(self):  # TODO: slow?
+    def evaluate(self):  # TODO: slow? (on cpu ~0.55s per call)
         accuracy = 0
         for x, y in zip(X_test, y_test):
             y_pred = np.argmax(self.forward(x.reshape(-1)))  # class with highest value
@@ -283,36 +282,40 @@ class Population():
 
 def main():
     # initialization
-    GENERATIONS = 30
+    GENERATIONS = 50
     POPULATION_SIZE = 20
     SURVIVORS = 10
     population = Population(size=POPULATION_SIZE, n_survivors=SURVIVORS)
 
     # initial population
-    t0 = time.time()
+    print('Starting training')
+    t_training = time.time()
     population_fitness = population.organism_fitness()
     max_fitness = population.max_fitness()
-    t1 = time.time()
+    t2 = time.time()
     print('Gen', 0, ':',
           population_fitness, '- max:',
           max_fitness,
-          '(' + str(round(t1 - t0, 2)) + 's)')
+          '({}s)'.format(round(t2 - t_training, 2)))
 
     # future populations
     for generation in range(1, GENERATIONS):
         # breed new population
-        t0 = time.time()
+        t1 = time.time()
         population.breed()
 
         # evaluate new population
         population_fitness = population.organism_fitness()
         max_fitness = population.max_fitness()
-        t1 = time.time()
+        t2 = time.time()
 
         print('Gen', generation, ':',
               population_fitness, '- max:',
               max_fitness,
-              '(' + str(round(t1 - t0, 2)) + 's)')
+              '({}s)'.format(round(t2 - t1, 2)))
+
+    print('Finished training ({})'.format(round(time.time() - t_training, 2)))
+    print('\nTotal computation time: ({}s)'.format(round(time.time() - t0, 2)))
 
     # performance of population
     population.plot()
