@@ -85,7 +85,8 @@ class LinModel(Model):
         self.linear1 = tf.keras.layers.Dense(32,
                                              activation='sigmoid',
                                              kernel_initializer=tf.keras.initializers.Constant(matrix1),
-                                             bias_initializer=tf.keras.initializers.Constant(bias1))
+                                             bias_initializer=tf.keras.initializers.Constant(bias1),
+                                             name='linear1')
         '''self.linear2 = tf.keras.layers.Dense(10,
                                              activation='softmax',
                                              kernel_initializer=tf.keras.initializers.Constant(matrix2),
