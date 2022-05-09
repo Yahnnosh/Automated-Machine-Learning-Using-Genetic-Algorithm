@@ -8,9 +8,9 @@
 - **Nando**: Spatial Oriented Neural Network (proof of concept)
 - **Janosch**: Weight Agnostic Neural Network (multi-layer)
   - *Under development*:
-    - _(Much) faster evaluation -> computation time_
-    - _Multi-layer not working with weight agnostic NN?_
+    - ~~_(Much) faster evaluation -> computation time_~~
+    - ~~_Multi-layer?_~~
     - _Convolutional weight (a-)gnostic NN?_
-    - _Weight gnostic NN?_
+    - ~~_Weight gnostic NN?_~~
     - _Dynamic mutation rate?_
     - _Dynamic population size?_
