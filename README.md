@@ -1,12 +1,13 @@
-# Project Plan
+# Mind Map
 
-**_Mind map_**:
 - _Number of layers mutable_
 - _Convolutional layers_
 - _Activation function by neuron_
 - _Row wise (neuron wise) crossover_
 - _Dynamic mutation rate_
 - _Dynamic population size_
+
+# Project Plan
 
 **Week 0**: Proof of concept
 - **Nando**: Spatial Oriented Neural Networks
