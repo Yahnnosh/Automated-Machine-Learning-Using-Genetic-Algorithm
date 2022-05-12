@@ -16,7 +16,7 @@ y_test = to_categorical(y_test)  # one-hot encoding
 print('Finished loading data ({}s)\n'.format(round(time.time() - t0, 3)))
 #%%
 
-# 1) Torben network
+# 1) Torben network (~0.98)
 hard_baseline_model = models.Sequential()
 hard_baseline_model.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)))
 hard_baseline_model.add(layers.BatchNormalization())
@@ -38,13 +38,22 @@ hard_baseline_model.compile(optimizer='adam', loss='categorical_crossentropy', m
 hard_baseline_model.fit(X_train, y_train, epochs=1, batch_size=64, validation_data=(X_test, y_test))
 #%%
 
-# 2) Simple multilayer perceptron
+# 2) Simple multilayer perceptron (~0.93)
 low_baseline_model = models.Sequential()
 low_baseline_model.add(layers.Flatten())
 low_baseline_model.add(layers.Dense(32, activation='relu'))
 low_baseline_model.add(layers.Dense(10, activation='softmax'))
 
 low_baseline_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-low_baseline_model.fit(X_train, y_train, epochs=2, batch_size=64, validation_data=(X_test, y_test))
+low_baseline_model.fit(X_train, y_train, epochs=1, batch_size=64, validation_data=(X_test, y_test))
 
 #%%
+
+# 3) Simple CNN (~0.97)
+model = models.Sequential()
+model.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', input_shape=(28, 28, 1)))
+model.add(layers.Flatten())
+model.add(layers.Dense(32, activation='relu'))
+model.add(layers.Dense(10, activation='softmax'))
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=1, batch_size=64, validation_data=(X_test, y_test))

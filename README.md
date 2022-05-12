@@ -1,11 +1,13 @@
 # Mind Map
 
-- _Number of layers mutable_
+- _Number of layers mutable -> speciation_
 - _Convolutional layers_
+- _Lots of activation functions_
 - _Activation function by neuron_
-- _Row wise (neuron wise) crossover_
+- ~~_Row wise (neuron wise) crossover_~~
 - _Dynamic mutation rate_
 - _Dynamic population size_
+- _Subset (of X_test) evaluation_
 
 # Project Plan
 
