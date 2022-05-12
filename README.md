@@ -1,5 +1,13 @@
 # Project Plan
 
+**_Mind map_**:
+- _Number of layers mutable_
+- _Convolutional layers_
+- _Activation function by neuron_
+- _Row wise (neuron wise) crossover_
+- _Dynamic mutation rate_
+- _Dynamic population size_
+
 **Week 0**: Proof of concept
 - **Nando**: Spatial Oriented Neural Networks
 - **Janosch**: Weight Agnostic Neural Networks
@@ -10,7 +18,4 @@
   - *Under development*:
     - ~~_(Much) faster evaluation -> computation time_~~
     - ~~_Multi-layer?_~~
-    - _Convolutional weight (a-)gnostic NN?_
     - ~~_Weight gnostic NN?_~~
-    - _Dynamic mutation rate?_
-    - _Dynamic population size?_
