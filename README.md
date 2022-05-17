@@ -1,5 +1,7 @@
 # Mind Map
-
+- ~~_(Much) faster evaluation -> computation time_~~
+- ~~_Multi-layer NN_~~
+- ~~_Weight gnostic NN?_~~
 - _Number of layers mutable -> speciation_
 - _Convolutional layers_
 - ~~_Lots of activation functions_~~
@@ -9,18 +11,5 @@
 - _Dynamic population size_
 - ~~_Crossover rate_~~
 - ~~_Subset (of X_test) evaluation_~~ -> effect negligable
-- _GA parameter tuning_ -> e.g. bayesian optimization?
+- _GA parameter tuning_ -> e.g. bayesian optimization, Nelder-mead?
 
-# Project Plan
-
-**Week 0**: Proof of concept
-- **Nando**: Spatial Oriented Neural Networks
-- **Janosch**: Weight Agnostic Neural Networks
-
-**Week 1**: Proof of concept (extended)
-- **Nando**: Spatial Oriented Neural Network (proof of concept)
-- **Janosch**: Weight Agnostic Neural Network (multi-layer)
-  - *Under development*:
-    - ~~_(Much) faster evaluation -> computation time_~~
-    - ~~_Multi-layer?_~~
-    - ~~_Weight gnostic NN?_~~
