@@ -402,7 +402,7 @@ def downhill(iterations):
         configs[:, worst_idx] = np.zeros(10)
         scores[worst_idx] = 2.0
 
-        centeroid = np.mean(config, axis=1)
+        centeroid = np.mean(configs, axis=1)
         diff = centeroid - worst_config
 
         new_config = assert_bounds(centeroid + diff)
