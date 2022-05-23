@@ -391,7 +391,7 @@ def downhill(iterations):
     for i in range(9):
         config = random_config()
         score = run(*to_param(config))
-        print("run: ", i, " random ", score, config)
+        print("run: ", i, " random ", score, to_param(config))
         configs[:, i] = config
         scores[i] = score
     
@@ -412,7 +412,7 @@ def downhill(iterations):
         if new_score > min(scores):
             configs[:, worst_idx] = new_config
             scores[worst_idx] = new_score
-            print("run: ", i, " fullstep ", new_score, new_config)
+            print("run: ", i, " fullstep ", new_score, to_param(new_config))
             continue
 
 
@@ -420,14 +420,8 @@ def downhill(iterations):
         new_score = run(*to_param(new_config))
         configs[:, worst_idx] = new_config
         scores[worst_idx] = new_score
+        print("run: ", i, " halfstep ", new_score, to_param(new_config))
         
-
-
-
-        
-
-
-
 
 
 
