@@ -364,3 +364,88 @@ def run(population_size, survivor_size, generations, hidden_layers, hidden_layer
         population.breed()
 
     return population.max_fitness()
+
+# Auto ML
+GENERATIONS = 400
+
+def to_param(config):
+    return (
+        round(config[0]), round(config[1]), round(config[2]), round(config[3]), round(config[4]), config[5], config[6],
+        config[7], config[8], config[9])
+
+
+def random_config():
+    # population_size
+    # survivor_size
+    # generations
+    # hidden_layers
+    # hidden_layer_width
+    # mutation_rate_matrix
+    # mutation_rate_bias
+    # mutation_rate_activation_function
+    # crossover_rate
+    # gaussian_noise_stdd
+
+    pop = random.randint(5, 20)
+    return np.array([pop,
+                     random.randint(2, pop),
+                     GENERATIONS,
+                     random.randint(0, 3),
+                     random.randint(5, 50),
+                     random.uniform(0.0, 1.0),
+                     random.uniform(0.0, 1.0),
+                     random.uniform(0.0, 1.0),
+                     random.uniform(0.0, 1.0),
+                     random.uniform(0.1, 2)])
+
+
+def assert_bounds(config):
+    return config
+
+
+def downhill(iterations):
+    configs = np.zeros((10, 9))
+    scores = np.zeros(9)
+
+    print("start")
+
+    for i in range(9):
+        try:
+            config = random_config()
+            score = run(*to_param(config))
+            print("run: ", i, " random ", score, to_param(config))
+            configs[:, i] = config
+            scores[i] = score
+        except ValueError as error:
+            print('VALUE_ERROR:', str(error))
+            print(to_param(config))
+
+    for i in range(9, iterations):
+        worst_idx = scores.argmin()
+        worst_config = configs[:, worst_idx]
+        configs[:, worst_idx] = np.zeros(10)
+        scores[worst_idx] = 2.0
+
+        centeroid = np.mean(configs, axis=1)
+        diff = centeroid - worst_config
+
+        new_config = assert_bounds(centeroid + diff)
+        new_score = run(*to_param(new_config))
+
+        if new_score > min(scores):
+            configs[:, worst_idx] = new_config
+            scores[worst_idx] = new_score
+            print("run: ", i, " fullstep ", new_score, to_param(new_config))
+            continue
+
+        new_config = assert_bounds(centeroid + diff / 2)
+        new_score = run(*to_param(new_config))
+        configs[:, worst_idx] = new_config
+        scores[worst_idx] = new_score
+        print("run: ", i, " halfstep ", new_score, to_param(new_config))
+
+
+if __name__ == "__main__":
+    downhill(15)
+
+#%%

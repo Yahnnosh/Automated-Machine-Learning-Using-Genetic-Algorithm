@@ -18,7 +18,6 @@ activation_functions = {
     'exp': tf.exp
 }
 
-
 # Loading Data
 SUBSET = 1.0  # subset (in percentage) of X_test used during training
 
@@ -38,7 +37,6 @@ y_test = tf.convert_to_tensor(np.transpose(y_test))
 
 # data for evaluation
 y_true = np.argmax(y_test, axis=0)
-
 
 # Network definition
 MUTATE_RATE_MATRIX = 0.2
@@ -366,20 +364,39 @@ def run(population_size, survivor_size, generations, hidden_layers, hidden_layer
     return population.max_fitness()
 
 
-
-
 def to_param(config):
-    return (round(config[0]), round(config[1]), round(config[2]), round(config[3]), round(config[4]), config[5], config[6], config[7], config[8], config[9])
+    return (
+    round(config[0]), round(config[1]), round(config[2]), round(config[3]), round(config[4]), config[5], config[6],
+    config[7], config[8], config[9])
 
 
 def random_config():
+    # population_size
+    # survivor_size
+    # generations
+    # hidden_layers
+    # hidden_layer_width
+    # mutation_rate_matrix
+    # mutation_rate_bias
+    # mutation_rate_activation_function
+    # crossover_rate
+    # gaussian_noise_stdd
+
     pop = random.randint(5, 20)
-    return np.array([pop, random.randint(0, pop), 50, random.randint(0, 3), random.randint(5, 50),
-        random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.1, 2)])
+    return np.array([pop,
+                     random.randint(2, pop),
+                     50,
+                     random.randint(0, 3),
+                     random.randint(5, 50),
+                     random.uniform(0.0, 1.0),
+                     random.uniform(0.0, 1.0),
+                     random.uniform(0.0, 1.0),
+                     random.uniform(0.0, 1.0),
+                     random.uniform(0.1, 2)])
+
 
 def assert_bounds(config):
     return config
-
 
 
 def downhill(iterations):
@@ -389,12 +406,15 @@ def downhill(iterations):
     print("start")
 
     for i in range(9):
-        config = random_config()
-        score = run(*to_param(config))
-        print("run: ", i, " random ", score, to_param(config))
-        configs[:, i] = config
-        scores[i] = score
-    
+        try:
+            config = random_config()
+            score = run(*to_param(config))
+            print("run: ", i, " random ", score, to_param(config))
+            configs[:, i] = config
+            scores[i] = score
+        except ValueError as error:
+            print('VALUE_ERROR:', str(error))
+            print(to_param(config))
 
     for i in range(9, iterations):
         worst_idx = scores.argmin()
@@ -408,22 +428,17 @@ def downhill(iterations):
         new_config = assert_bounds(centeroid + diff)
         new_score = run(*to_param(new_config))
 
-
         if new_score > min(scores):
             configs[:, worst_idx] = new_config
             scores[worst_idx] = new_score
             print("run: ", i, " fullstep ", new_score, to_param(new_config))
             continue
 
-
-        new_config = assert_bounds(centeroid + diff/2)
+        new_config = assert_bounds(centeroid + diff / 2)
         new_score = run(*to_param(new_config))
         configs[:, worst_idx] = new_config
         scores[worst_idx] = new_score
         print("run: ", i, " halfstep ", new_score, to_param(new_config))
-        
-
-
 
 
 if __name__ == "__main__":
