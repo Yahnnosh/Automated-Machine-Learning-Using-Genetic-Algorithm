@@ -417,28 +417,54 @@ def downhill(iterations):
             print(to_param(config))
 
     for i in range(9, iterations):
-        worst_idx = scores.argmin()
+        idx = scores.argsort()
+        worst_idx = idx[0]
+        worst_score = scores[worst_idx]
         worst_config = configs[:, worst_idx]
-        configs[:, worst_idx] = np.zeros(10)
-        scores[worst_idx] = 2.0
 
-        centeroid = np.mean(configs, axis=1)
+        centeroid = (np.sum(configs, axis=1)-worst_config)/8
         diff = centeroid - worst_config
 
-        new_config = assert_bounds(centeroid + diff)
-        new_score = run(*to_param(new_config))
+        reflected_config = assert_bounds(centeroid + diff)
+        reflected_score = run(*to_param(reflected_config))
 
-        if new_score > min(scores):
-            configs[:, worst_idx] = new_config
-            scores[worst_idx] = new_score
-            print("run: ", i, " fullstep ", new_score, to_param(new_config))
+        print("run: ", i)
+
+        if reflected_score > scores[8]:
+            print("expand?")
+            expanded_config = assert_bounds(centeroid + 2*diff)
+            expanded_score = run(*to_param(expanded_config))
+            if expanded_score > reflected_score:
+                configs[:, worst_idx] = expanded_config
+                scores[worst_idx] = expanded_score
+                print("expanded_step", expanded_score, to_param(expanded_config))
+                continue
+
+        if reflected_score > scores[1]:
+            configs[:, worst_idx] = reflected_config
+            scores[worst_idx] = reflected_score
+            print("normal_step", reflected_score, to_param(reflected_config))
             continue
 
-        new_config = assert_bounds(centeroid + diff / 2)
-        new_score = run(*to_param(new_config))
-        configs[:, worst_idx] = new_config
-        scores[worst_idx] = new_score
-        print("run: ", i, " halfstep ", new_score, to_param(new_config))
+
+        
+        print("contract?")
+        contracted_config = assert_bounds(centeroid + 0.5*diff)
+        contracted_score = run(*to_param(contracted_config))
+
+        if contracted_score > reflected_score:
+            configs[:, worst_idx] = contracted_config
+            scores[worst_idx] = contracted_score
+            print("contracted_step", contracted_score, to_param(contracted_config))
+            continue
+
+        print("shrink", "too be implemented")
+        configs[:, worst_idx] = reflected_config
+        scores[worst_idx] = reflected_score
+        print("normalstep", reflected_score, to_param(reflected_config))
+            
+
+
 
 
 if __name__ == "__main__":
