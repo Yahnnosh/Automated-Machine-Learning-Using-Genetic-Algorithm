@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras.datasets import cifar100
+from tensorflow.keras.datasets import mnist
 from tensorflow.keras import layers, models, Model
 from tensorflow.keras.utils import to_categorical
 import matplotlib.pyplot as plt
@@ -18,17 +18,18 @@ activation_functions = {
     'exp': tf.exp
 }
 
+
 # Loading Data
 SUBSET = 1.0  # subset (in percentage) of X_test used during training
 
 # numpy
-_, (X_test, y_test) = cifar100.load_data()  # only care  about X_test
+_, (X_test, y_test) = mnist.load_data()  # only care  about X_test
 
 selection = np.random.choice(np.arange(X_test.shape[0]),
                              int(SUBSET * X_test.shape[0]),
                              replace=False)
 
-X_test = X_test.reshape(10000, 3072).astype(np.float32)[selection] / 255.0  # flatten
+X_test = X_test.reshape(10000, 784).astype(np.float32)[selection] / 255.0  # flatten
 y_test = to_categorical(y_test)[selection]  # one-hot encoding
 
 # tensorflow
@@ -38,6 +39,7 @@ y_test = tf.convert_to_tensor(np.transpose(y_test))
 # data for evaluation
 y_true = np.argmax(y_test, axis=0)
 
+
 # Network definition
 MUTATE_RATE_MATRIX = 0.2
 MUTATE_RATE_BIAS = 0.2
@@ -45,7 +47,7 @@ MUTATE_RATE_ACTIVATION_FUNCTION = 0.2
 CROSSOVER_RATE = 0.5
 GAUSSIAN_NOISE_STDDEV = 1  # mutation applies additive gaussian noise
 UNIFORM_CROSSOVER = False  # if True, performs crossover of matrices element-wise, else row-wise
-HIDDEN_LAYER_WIDTH = 100
+HIDDEN_LAYER_WIDTH = 32
 
 
 class MultiLayerPerceptron(Model):
@@ -153,11 +155,11 @@ class Population:
         for _ in range(size):
             params = {}
 
-            n_neurons_prev = 3072
+            n_neurons_prev = 784
             n_neurons_curr = HIDDEN_LAYER_WIDTH
             for layer in range(1, self.n_hidden_layers + 2):
                 if layer == self.n_hidden_layers + 1:
-                    n_neurons_curr = 100  # output layer
+                    n_neurons_curr = 10  # output layer
                 params['matrix' + str(layer)] = tf.random.normal(mean=0.0, stddev=1.0,
                                                                  shape=[n_neurons_curr, n_neurons_prev])
                 params['bias' + str(layer)] = tf.random.normal(mean=0.0, stddev=1.0, shape=[n_neurons_curr, 1])
@@ -362,110 +364,3 @@ def run(population_size, survivor_size, generations, hidden_layers, hidden_layer
         population.breed()
 
     return population.max_fitness()
-
-
-def to_param(config):
-    return (
-    round(config[0]), round(config[1]), round(config[2]), round(config[3]), round(config[4]), config[5], config[6],
-    config[7], config[8], config[9])
-
-
-def random_config():
-    # population_size
-    # survivor_size
-    # generations
-    # hidden_layers
-    # hidden_layer_width
-    # mutation_rate_matrix
-    # mutation_rate_bias
-    # mutation_rate_activation_function
-    # crossover_rate
-    # gaussian_noise_stdd
-
-    pop = random.randint(5, 20)
-    return np.array([pop,
-                     random.randint(2, pop),
-                     50,
-                     random.randint(0, 3),
-                     random.randint(5, 50),
-                     random.uniform(0.0, 1.0),
-                     random.uniform(0.0, 1.0),
-                     random.uniform(0.0, 1.0),
-                     random.uniform(0.0, 1.0),
-                     random.uniform(0.1, 2)])
-
-
-def assert_bounds(config):
-    return config
-
-
-def downhill(iterations):
-    configs = np.zeros((10, 9))
-    scores = np.zeros(9)
-
-    print("start")
-
-    for i in range(9):
-        try:
-            config = random_config()
-            score = run(*to_param(config))
-            print("run: ", i, " random ", score, to_param(config))
-            configs[:, i] = config
-            scores[i] = score
-        except ValueError as error:
-            print('VALUE_ERROR:', str(error))
-            print(to_param(config))
-
-    for i in range(9, iterations):
-        idx = scores.argsort()
-        worst_idx = idx[0]
-        worst_score = scores[worst_idx]
-        worst_config = configs[:, worst_idx]
-
-        centeroid = (np.sum(configs, axis=1)-worst_config)/8
-        diff = centeroid - worst_config
-
-        reflected_config = assert_bounds(centeroid + diff)
-        reflected_score = run(*to_param(reflected_config))
-
-        print("run: ", i)
-
-        if reflected_score > scores[8]:
-            print("expand?")
-            expanded_config = assert_bounds(centeroid + 2*diff)
-            expanded_score = run(*to_param(expanded_config))
-            if expanded_score > reflected_score:
-                configs[:, worst_idx] = expanded_config
-                scores[worst_idx] = expanded_score
-                print("expanded_step", expanded_score, to_param(expanded_config))
-                continue
-
-        if reflected_score > scores[1]:
-            configs[:, worst_idx] = reflected_config
-            scores[worst_idx] = reflected_score
-            print("normal_step", reflected_score, to_param(reflected_config))
-            continue
-
-
-        
-        print("contract?")
-        contracted_config = assert_bounds(centeroid + 0.5*diff)
-        contracted_score = run(*to_param(contracted_config))
-
-        if contracted_score > reflected_score:
-            configs[:, worst_idx] = contracted_config
-            scores[worst_idx] = contracted_score
-            print("contracted_step", contracted_score, to_param(contracted_config))
-            continue
-
-        print("shrink", "too be implemented")
-        configs[:, worst_idx] = reflected_config
-        scores[worst_idx] = reflected_score
-        print("normalstep", reflected_score, to_param(reflected_config))
-            
-
-
-
-
-if __name__ == "__main__":
-    downhill(15)

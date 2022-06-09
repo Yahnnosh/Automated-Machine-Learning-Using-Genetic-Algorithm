@@ -1,3 +1,8 @@
+#%%
+'''import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"   # run on cpu only'''
+#%%
+import tensorflow as tf
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras import layers, models
 from tensorflow.keras.utils import to_categorical
@@ -46,7 +51,6 @@ low_baseline_model.add(layers.Dense(10, activation='softmax'))
 
 low_baseline_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 low_baseline_model.fit(X_train, y_train, epochs=1, batch_size=64, validation_data=(X_test, y_test))
-
 #%%
 
 # 3) Simple CNN (~0.97)
@@ -57,3 +61,40 @@ model.add(layers.Dense(32, activation='relu'))
 model.add(layers.Dense(10, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 model.fit(X_train, y_train, epochs=1, batch_size=64, validation_data=(X_test, y_test))
+
+#%%
+# 4) Experimental (idea: focus on convolution until all information in depth)
+model = models.Sequential()
+model.add(layers.Conv2D(filters=6, kernel_size=(5, 5), activation='relu', input_shape=(28, 28, 1), use_bias=False))
+model.add(layers.Conv2D(filters=12, kernel_size=(5, 5), activation='relu', use_bias=False))
+model.add(layers.MaxPool2D(strides=(2, 2)))
+model.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', use_bias=False))
+model.add(layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', use_bias=False))
+model.add(layers.MaxPool2D(strides=(2, 2)))
+model.add(layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', use_bias=False))
+model.add(layers.Flatten())
+model.add(layers.Dense(10, activation='softmax'))
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=5, batch_size=64, validation_data=(X_test, y_test))
+
+#%%
+# 5) Experimental (idea: focus on convolution to reduce parameters)
+model = models.Sequential()
+model.add(layers.Conv2D(filters=6, kernel_size=(5, 5), activation='relu', input_shape=(28, 28, 1), use_bias=False))
+model.add(layers.MaxPool2D(strides=(2, 2)))
+model.add(layers.Conv2D(filters=12, kernel_size=(5, 5), activation='relu', use_bias=False))
+model.add(layers.MaxPool2D(strides=(2, 2)))
+model.add(layers.Conv2D(filters=16, kernel_size=(3, 3), activation='relu', use_bias=False))
+model.add(layers.MaxPool2D(strides=(2, 2)))
+model.add(layers.Flatten())
+model.add(layers.Dense(10, activation='softmax'))
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=1, batch_size=64, validation_data=(X_test, y_test))
+#%%
+# 6) No hidden layer - i.e. linear classifier (~92%)
+model = models.Sequential()
+model.add(layers.Flatten())
+model.add(layers.Dense(10, activation='softmax'))
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=10, batch_size=64, validation_data=(X_test, y_test))
+#%%
