@@ -1,14 +1,10 @@
-# Automatic Machine Learning Using Genetic Algorithm
-This project proposes an algorithm used for training a neural network (architecture and hyperparameters), evaluated on the MNIST dataset.
-A genetic algorithm trains a fixed neural network architecture, while a second algorithm (Nelder-mead) optimizes the architecture and the parameters used in the genetic algorithm.
+# Automated Machine Learning Using Genetic Algorithm
+This project proposes a nested optimization algorithm for automated machine learning. The algorithm optimizes
+both the architecture as well as the hyperparameters of the neural network using:
+1) A Nelder-Mead algorithm, optimizing the architecture and parameters of the genetic algorithm
+2) A genetic algorithm, training a fixed neural network architecture
 
-# Files
-- **GA_MLP**: Multilayer perceptron with fixed architecture trained with genetic algorithm (python file or jupyter notebook)
-- **GA_CNN**: Convolutional neural network with fixed architecture trained with genetic algorithm (python file or jupyter notebook)
+As an exemplary problem set, the MNIST dataset is used here.
 
-
-- **automaticML_MLP**: Nelder-Mead algorithm optimizing the GA parameters and the MLP architecture
-- **automaticML_MLP**: Nelder-Mead algorithm optimizing the GA parameters and the CNN architecture
-
-
-- **baselines**: Simple example neural networks, trained with gradient descent
+It is possible to specify the complexity of the resulting neural networks by giving depth and width constraints to the algorithm.
+The algorithm is capable of training both convolutional neural networks and multi-layer perceptrons (see folder */MLP*).
