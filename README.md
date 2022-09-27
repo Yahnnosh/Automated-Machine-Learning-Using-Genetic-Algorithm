@@ -15,7 +15,7 @@ as all hyperparameters of the network. The following pipeline for the (nested) a
 ### Problem set
 As an exemplary problem set, the MNIST dataset for image classification is used in this project.
 
-# Method
+# Methods
 ### Genetic algorithm
 The genetic algorithm optimizes all hyperparameters of a (convolutional) neural networks, i.e.:
 1. **Weights** of the fully connected layers
